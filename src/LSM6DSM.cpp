@@ -182,12 +182,12 @@ bool LSM6DSM::outOfBounds(float val, float minval, float maxval)
     return val < minval || val > maxval;
 }
 
-void LSM6DSM::calibrate(float * gyroBias, float * accelBias)
+void LSM6DSM::calibrate(float * gyroBias, float * accelBias, int iters)
 {
     int16_t temp[7] = {0, 0, 0, 0, 0, 0, 0};
     int32_t sum[7] = {0, 0, 0, 0, 0, 0, 0};
 
-    for (int ii = 0; ii < 128; ii++)
+    for (int ii = 0; ii < iters; ii++)
     {
         readData(temp);
         sum[1] += temp[1];
@@ -199,12 +199,12 @@ void LSM6DSM::calibrate(float * gyroBias, float * accelBias)
         delay(50);
     }
 
-    gyroBias[0] = sum[1]*_gres/128.0f;
-    gyroBias[1] = sum[2]*_gres/128.0f;
-    gyroBias[2] = sum[3]*_gres/128.0f;
-    accelBias[0] = sum[4]*_ares/128.0f;
-    accelBias[1] = sum[5]*_ares/128.0f;
-    accelBias[2] = sum[6]*_ares/128.0f;
+    gyroBias[0] = sum[1]*_gres/(float)iters;
+    gyroBias[1] = sum[2]*_gres/(float)iters;
+    gyroBias[2] = sum[3]*_gres/(float)iters;
+    accelBias[0] = sum[4]*_ares/(float)iters;
+    accelBias[1] = sum[5]*_ares/(float)iters;
+    accelBias[2] = sum[6]*_ares/(float)iters;
 
     if(accelBias[0] > 0.8f)  {accelBias[0] -= 1.0f;}  // Remove gravity from the x-axis accelerometer bias calculation
     if(accelBias[0] < -0.8f) {accelBias[0] += 1.0f;}  // Remove gravity from the x-axis accelerometer bias calculation
